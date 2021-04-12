@@ -1,11 +1,10 @@
-## Summary
+## Incident Managment
+
+#### Summary
 Incident management is the process used by DevOps and IT Operations teams to respond to an unplanned event or service interruption and restore the service to its operational state. Our incident management team is in charge of this process. We have created templates for incident reports and incident postmortem analyses, direct others on how to deal with incidents, and keep track of all problematic events and happenings. We are also in charge of the deployment of the rss-evaluation and rss-frontend services.
 * Team Leader: Jonathan Schmitz
 * Team Members: Justin Cabrera, Robert Moody, Jared Malkin
 
-<a id="IncidentManagement" class="anchor"></a>
-## Incident Management
-The Incident Management process is a set of procedures or actions taken to respond to and resolve an incident.
 #### Steps
 1. Incident Identification, Logging, and Categorization
     * Once identified, an incident is logged and then categorized.
