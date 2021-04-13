@@ -6,7 +6,7 @@
 * Build image using provided [Dockerfile](https://github.com/rss-sre-1/rss-cart-service/blob/dev/revature-cart-backend/Dockerfile)
   * `docker build -t rss-cart-service .`
   * Push image to Dockerhub or ECR. Image may be retagged at this point.
-  * `docker push rss-cart-service:latest` 
+    * `docker push rss-cart-service:latest` 
   * Change image repository URL in [rss-cart-deployment.yml](https://github.com/rss-sre-1/rss-cart-service/blob/dev/manifests/rss-cart-deployment.yml) on line 38.
   * Change image repository URL in [rss-cart-canary-deployment.yml](https://github.com/rss-sre-1/rss-cart-service/blob/dev/manifests/rss-cart-carany-deployment.yml) and [rss-cart-load-test-deployment](https://github.com/rss-sre-1/rss-cart-service/blob/dev/manifests/rss-cart-load-test-deployment.yml) on line 40.
 * Create a namespace called rss-cart
