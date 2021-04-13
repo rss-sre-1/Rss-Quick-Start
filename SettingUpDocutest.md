@@ -8,7 +8,7 @@ Docutest is an application used by RSS to load test service build prior to deplo
 
 All files used for setup are available within the Docutest repository. 
 
-# From An Image
+### From An Image
 This is likely going to be the easiest way to set up the Docutest. Download the contents of [the manifests folder](https://github.com/rss-sre-1/Docutest/tree/master/manifests) and run these commands:
 ```
 kubectl apply -f docutest-deployment.yml
