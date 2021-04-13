@@ -30,8 +30,8 @@ kubectl apply -f grafana-ingress.yml
 ```
 
 ### Set up Prometheus and Loki datasources
-* Prometheus
-* Loki & FluentD
+* [Prometheus](https://github.com/rss-sre-1/Rss-Quick-Start/blob/main/SettingUpPrometheus.md)
+* [Loki & FluentD](https://github.com/rss-sre-1/Rss-Quick-Start/blob/main/SettingUpFluentdAndLoki.md)
 
 ### Create dashboards for monitoring
 * Access /grafana/ endpoint and login with username: admin and password: password.
