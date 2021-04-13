@@ -118,8 +118,6 @@ private String name;
 private List<CartItem> cartItems;
 ```
 
-[Back to top](#links)
-
 ### CartItemController
 
 #### Endpoints
