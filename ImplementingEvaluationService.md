@@ -20,6 +20,3 @@
 * Exported logs to Loki
 * Added custom counter metric to service
 * Resolved recursive entity construction with Jsonbackreference
-
-#### Features to be Implemented
-* Exception Handling
