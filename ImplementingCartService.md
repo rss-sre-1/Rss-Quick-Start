@@ -1,6 +1,6 @@
 ## Cart Service
 
-#### Implementing Cart Service
+### Implementing Cart Service
 
 * Clone the [rss-cart-service repository](https://github.com/rss-sre-1/rss-cart-service.git)
 * Build image using provided [Dockerfile](https://github.com/rss-sre-1/rss-cart-service/blob/dev/revature-cart-backend/Dockerfile)
@@ -48,7 +48,7 @@
 * Added exception handling
 
 
-#### Using Cart Service
+### Using Cart Service
 
 The cart microservice handles:
 
