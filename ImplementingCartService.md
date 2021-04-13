@@ -15,7 +15,7 @@
 * Create secret using previously created environment variables
   * `kubectl create -n rss-cart secret generic rss-cart-credentials --from-literal=url=*$DB_URL --from-literal=username=$DB_USERNAME --from- literal=password=$DB_PASSWORD`
 * Create fluentd configmap for logging using [fluent.conf](https://github.com/rss-sre-1/rss-cart-service/blob/dev/logging/fluent.conf)
-  * kubectl create configmap -n rss-cart rss-cart-fluent-conf --from-file fluent.conf
+  * `kubectl create configmap -n rss-cart rss-cart-fluent-conf --from-file fluent.conf`
 * Apply the [rss-cart manifests](https://github.com/rss-sre-1/rss-cart-service/tree/dev/manifests) to kubernetes
   * service - define how the pods will be accessed
     * `kubectl apply rss-cart-service-service.yml`
