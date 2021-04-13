@@ -38,16 +38,6 @@
 * Ensure all pods are running by doing a get all on the rss-cart namespace. There should be 3 deployment pods with 2/2 containers ready.
   * `kubectl -n rss-cart get all`    
 
-#### Implemented Changes
-* Converted the H2 database to PostgreSQL database
-* Added logback and fluentd dependencies to the service
-* Added logging to all implemented methods
-* Created a canary deployment and load test deployment manifest
-* Update Dockerfile to integrate Pinpoint APM
-* Exported logs to Loki
-* Added exception handling
-
-
 ### Using Cart Service
 
 The cart microservice handles:
@@ -191,3 +181,13 @@ private Cart cart;
 private int productId;
 private int quantity;
 ```
+
+### Implemented Changes
+* Converted the H2 database to PostgreSQL database
+* Added logback and fluentd dependencies to the service
+* Added logging to all implemented methods
+* Created a canary deployment and load test deployment manifest
+* Update Dockerfile to integrate Pinpoint APM
+* Exported logs to Loki
+* Added exception handling for bad requests
+
