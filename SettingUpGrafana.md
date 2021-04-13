@@ -16,10 +16,10 @@ persistence:
   finalizers:
     - kubernetes.io/pvc-protection
 ```
-Run these commands
+Run these commands to install grafana
 ```
 helm repo add grafana https://grafana.github.io/helm-charts
-help repo update
+helm repo update
 helm install grafana grafana/grafana -f values.yaml
 ```
 
