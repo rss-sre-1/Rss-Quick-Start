@@ -1,5 +1,11 @@
 ## Bash Scripts and any other scripting files used to help setup, manage, and monitor the system.
 
+### Scripts
+- [Sebastian.sh]("#user-content-sebastian")
+- [Pipeline.sh]("#user-content-pipeline")
+- [kubectl.sh]("#user-content-kubectl")
+- [superkube.sh]("#user-content-superkube")
+
 
 ### Sebastian
 Sebastian is a light weight script that continuous calls provided pipeline (Pipeline.sh) style scripts.
