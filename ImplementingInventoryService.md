@@ -24,9 +24,6 @@
     * `kubectl apply -f loki-external.yml` 
 * Ensure all pods are running by doing a get all on the rss-inventory namespace. There should be 3 deployment pods with 2/2 containers ready.
   * `kubectl -n rss-inventory get all`    
-* If you update the helm chart (values.yaml), enter these commands:
-  * `cd scripts`
-  * `./apply.sh`
 
 ### Using Inventory Service
 
