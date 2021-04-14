@@ -24,22 +24,22 @@ The following can be found in the repository of each microservice:
 
 ### Configureation
 * set up a Jenkins Pipeline
-** be sure to either set the Authentication Token to 'load_test' or adjust the  'curl' command within the 'handoff_to_jenkins' job of 'Build.yml' with the appropriate token
+    * be sure to either set the Authentication Token to 'load_test' or adjust the  'curl' command within the 'handoff_to_jenkins' job of 'Build.yml' with the appropriate token
 * adjust the following Repository Secrets appropriately
-** TODO: 
+    * TODO: 
 * make sure that the following pods exist on the cluster (their manifests have been applied) before attempting to run a workflow for a given microservice:
-** ~-deployment
-** ~-load-test-deployment
-** ~-canary-deployment
-** ~-service
-** ~-load-test-service
-*** '~' refers to the name of the microservice
+    * ~-deployment
+    * ~-load-test-deployment
+    * ~-canary-deployment
+    * ~-service
+    * ~-load-test-service
+        * '~' refers to the name of the microservice
 
 ## potential pitfalls/further development ideas
 * only workflows extant in the default branch of a repository will appear in the 'Aactions' tab of that repository
 * each individual 'run' tag within a workflow defined a new instance of a shell to run in.  Actions taken in one do not persist beyond the length of that tun-tag
 * commented out lines within the 'run' tag will cause the workflow to fail.
-** they system does not properly handle comments as they are read as shell commands and thus the commenting format will be read as improper syntax
+    * they system does not properly handle comments as they are read as shell commands and thus the commenting format will be read as improper syntax
 
 ## The Github Actions
 
@@ -49,26 +49,26 @@ Below are listed the tasks performed by each Workflow
 #### BUILD
 * trigger: a push to the default branch
 * sonar_maven_build
-** converts the current version of the src code into a Docker Image, then pushes said image to the AWS ECR
-*** the current Github Hash is used as the tag for this image
+    * converts the current version of the src code into a Docker Image, then pushes said image to the AWS ECR
+        * the current Github Hash is used as the tag for this image
 * access_aws_set_loadtest_deployment
-** update the image of the lost-test deployment to the newly pushed image
-** spin-up the load-test deployment to the same number of replicas that the production should have if the new cannary should end up being deployed.
+    * update the image of the lost-test deployment to the newly pushed image
+    * spin-up the load-test deployment to the same number of replicas that the production should have if the new cannary should end up being deployed.
 * handoff_to_jenkins
-** trigger the associated Pipeline so that load-testing can be performed
+    * trigger the associated Pipeline so that load-testing can be performed
 
 #### CREATE_CANARY
 * trigger: an HTTP POST request send by the Jenkins Pipeline
 * access_aws:
-** spin-down the load-test-deployment to dormancy
-** update the canary-deployment to the newly pushed image
-** spin-up the canary-deployment to a single replica-set for production testing
+    * spin-down the load-test-deployment to dormancy
+    * update the canary-deployment to the newly pushed image
+    * spin-up the canary-deployment to a single replica-set for production testing
 
 #### Promote_Canary
 * trigger: an HTTP POST request send by the Jenkins Pipeline
 * access_aws:
-** update the prucution deployment to the newly pushed image
-** spin-down the canary-deployment to dormancy
+    * update the prucution deployment to the newly pushed image
+    * spin-down the canary-deployment to dormancy
 
 #### Reject_Cannary
 * trigger: an HTTP POST request send by the Jenkins Pipeline
@@ -80,9 +80,22 @@ Github workflows are YAML files and and have the following general structure
 * env tag contians a list of the variables used by the workflow
 
 ## The Jenkins Pipeline
-This pipeline is defined by a flat file 'Jenkinsfile' that can be found in the root directory.  The pipeline outline is as described below
+This pipeline is defined by a flat file 'Jenkinsfile' that can be found in the root directory.  
 
-
+### jenkinsfile outline
+* Kubernetes agent
+    * defines the pot onwhich the jenkins pipeline runs
+* enviroment
+    * defines the context inwhich the jenkins pipeline runs
+* stages
+    * 'Load Test'
+        * uses Docutest to permorm many requests against all endpoints of RSS
+        * stores the results in an S3 bucket on the cluster
+    * 'Create Canary'
+        * triggers workflow 'CREATE_CANARY'
+    * 'Promote or Reject Canary'
+        * waits for user imput 
+        * triggers the appropriate workflow based on said input
 
 ## Github Repository Secrets
 
