@@ -1,7 +1,12 @@
 #!/bin/bash
 #PIPELINE VARIABLES
+#KUBERNETES
+Context="sre"
+ECR="855430746673.dkr.ecr.us-east-1.amazonaws.com"
 Namespace="rss-evaluation"
 
+
+#DOCKER
 ImageRegistry="855430746673.dkr.ecr.us-east-1.amazonaws.com";
 ImageName="matt-oberlies-sre-p3-rss-evaluation";
 ImageTag="latest";
@@ -52,7 +57,7 @@ if [ "$(diff $BaseFile $TempFile)" != "" ]; then
 
 
   touch DF;
-  err="$(aws ecr get-login-password --profile sre | docker login --username AWS --password-stdin 855430746673.dkr.ecr.us-east-1.amazonaws.com 2>&1)";
+  err="$(aws ecr get-login-password --profile $Context | docker login --username AWS --password-stdin $ECR 2>&1)";
   rm DF;
   if [[ "${err:0:5}" == "error" || "${err:0:6}" == "unable" ]]; then
     echo "ERROR: $err";
@@ -60,7 +65,7 @@ if [ "$(diff $BaseFile $TempFile)" != "" ]; then
 
 ####### ADD / MODIFY / REMOVE STAGES #######
 #STARTING PIPELINE
-#  aws ecr get-login-password --profile sre | docker login --username AWS --password-stdin 855430746673.dkr.ecr.us-east-1.amazonaws.com;
+#  aws ecr get-login-password --profile $Context | docker login --username AWS --password-stdin $ECR;
   git pull;
 
 #BUILD STAGE
