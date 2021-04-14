@@ -8,11 +8,13 @@ Docutest is an application used by RSS to load test service build prior to deplo
 
 All files used for setup are available within the Docutest repository. 
 
+### From Your Own Build
+If you would like to modify the Docutest source code, fork the repository and create your own. After any changes you make, build the application and push it to a docker repository, then begin the From an Image section.
+
 ### From An Image
 This is likely going to be the easiest way to set up the Docutest. Download the contents of [the manifests folder.](https://github.com/rss-sre-1/Docutest/tree/master/manifests)
 
 If you have you own Docutest image you would like to use, change the docutest-deployment.yml to use that, rather than "eilonwy/docutest:latest." Additionally, Docutest will need access to a PostgrSQL database. If you need help creating a database, refer to [this link.](https://github.com/rss-sre-1/Rss-Quick-Start/blob/main/SettingUpPostgreSQL) The credentials and url to the database are set in a Kubernetes secret named "docutest-database." The secret can be create with this form:
-
 ```
 kubectl create secret generic docutest-database --from-literal='url=yourURL' --from-literal='username=yourUsr' --from-literal='password=yourPW'
 ```
