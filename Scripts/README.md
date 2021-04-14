@@ -1,10 +1,10 @@
 ## Bash Scripts and any other scripting files used to help setup, manage, and monitor the system.
 
 ### Scripts
-- [Sebastian.sh]("#user-content-sebastian")
-- [Pipeline.sh]("#user-content-pipeline")
-- [kubectl.sh]("#user-content-kubectl")
-- [superkube.sh]("#user-content-superkube")
+- [Sebastian.sh]("#sebastian")
+- [Pipeline.sh]("#pipeline")
+- [kubectl.sh]("#kubectl")
+- [superkube.sh]("#superkube")
 
 
 ### Sebastian
