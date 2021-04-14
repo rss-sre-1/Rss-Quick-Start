@@ -23,11 +23,49 @@
 	- `kubectl create namespace rss-account`
 - Create environment variables DB_URL (database url), DB_USERNAME (database username) and DB_PASSWORD (database password) on cluster as secrets
 	- `kubectl create -n rss-account secret generic rss-account-credentials --from-literal=url={DATABASE URL} --from-literal=username={DATABASE USERNAME} --from-literal=password={DATABASE PASSWORD}`
-- Create fluentd configmap for logging using [fluent.conf](https://github.com/rss-sre-1/rss-cart-service/blob/dev/logging/fluent.conf)
+- Create fluentd configmap for logging using [fluent.conf](https://github.com/rss-sre-1/rss-account-service/blob/master/manifests/fluent.conf)
   - Go back to root folder
   	- `cd ..`
   - Apply fluent.conf file
 		- `kubectl create configmap -n rss-account rss-account-fluent-conf --from-file fluent.conf`
+- Apply the [rss-account manifests](https://github.com/rss-sre-1/rss-account-service/tree/master/manifests) to Kubernetes cluster
+  - service - define how the pods will be accessed
+  	- `kubectl apply rss-account-service-service.yml`
+  - service-monitor - allow for service discovery in Prometheus for observability and dashboarding
+  	- `kubectl apply service-monitor.yml` 
+  - rules - set up recording and alerting rules for Prometheus 
+  	- `kubectl apply rss-account-rules.yml`  
+  - deployment - production deployment of account service and fluentd
+  	- `kubectl apply rss-account-service-deployment.yml` 
+  - canary-deployment - canary deployment of account service and fluentd
+  	- `kubectl apply rss-account-service-canary-deployment.yml`
+  - load-test-deployment - load test deployment of account service and fluentd
+  	- `kubectl apply rss-account-service-load-test-deployment.yml`
+  - load-test-service - makes sure that load test does not go through load balancer
+  	- `kubectl apply rss-account-service-load-test-service.yml` 
+  - ingress - allows access to service from outside the cluster  
+  	- `kubectl apply rss-account-ingress.yml`   
+  - loki-external - allows access to loki agent in default namespace from inside rss-account namespace
+   	- `kubectl apply loki-external.yml`
+- Ensure all pods are running by doing a get all on the rss-account namespace. There should be 3 deployment pods with 2/2 containers ready.
+  - `kubectl -n rss-account get all`
+
+### Using Account Service
+
+The microservice for Account Service allows for:
+
+- user creation
+- user information updates
+- user authentication
+- retrieving user information
+- user account creation
+- user account updates
+- user account retrieval
+- account type creation
+- account type updates
+- account type retrieval
+
+These requests are handled by three controllers: **UserController, AccountController, and AccountTypeController** 
 
 ### UserController
 
@@ -152,4 +190,9 @@ public void updateAccountType(@RequestBody AccountType accType)
 
 > Will update a current account type(for spelling errors, ect)
 
-## Implemented Changes
+## Implemented Changes from previous batch
+
+- Added custom exception handling
+- Configured source code to handle interaction with a PostgreSQL database
+	- Source code was implemented to interact with an Oracle SQL database
+- Adjusted table relationships to interact with a PostgreSQL database
