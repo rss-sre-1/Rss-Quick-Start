@@ -11,6 +11,28 @@ All files used for setup are available within the Docutest repository.
 ### From Your Own Build
 If you would like to modify the Docutest source code, fork the repository and create your own. After any changes you make, build the application and push it to a docker repository, then begin the From an Image section.
 
+### Creating An Image
+To create an Image of Docutest, Docker will need to be installed. First the source code will need to be packaged into a jar file. If Maven is insalled then simply do the following in the root folder:
+```
+mvn clean package
+```
+Otherwise use the inbedden mvnw:
+```
+./mvnw clean package
+```
+Once the souce code has been packaged the image can be built with the following command:
+```
+docker build -t username/repository .
+```
+The image will then be in your local repository and will need to be pushed to either a public or private repository so that the deployment manifest call pull that image. For example if useing DockerHub the username will be your Dockerhub's username and repository will be the name of a repository on DockerHub. Before pushing the image, make sure you are logged into the service. This can vary depending on the service the image is going to be uploaded to.
+```
+docker login --username=yourhubusername --email=youremail@company.com
+```
+You can then push the image onto that repository. 
+```
+docker push username/repository
+```
+
 ### From An Image
 This is likely going to be the easiest way to set up the Docutest. Download the contents of [the manifests folder.](https://github.com/rss-sre-1/Docutest/tree/master/manifests)
 
