@@ -1,0 +1,294 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: rss-account-prometheus-rules
+  namespace: rss-account
+  labels:
+    job: rss-account-service
+    release: kube-prometheus-stack
+    app: kube-prometheus-stack
+    team: sre
+spec:
+  groups:
+  - name: rssaccountSLOs-http_request_latency
+    rules:
+    - alert: RSSaccount_LatencyBudgetBurn
+      annotations:
+        summary: '[{{ $labels.severity }}] High requests latency budget burn for {{ $labels.app }}'
+        description: 'High latency ({{ $labels.latency}}s) ratio exceeds burn rate for job {{ $labels.job }}. Current value is {{ $value }} for {{ $labels.window }} window.'        
+        message: 'High requests latency budget burn for job=rss-account-service,latency=1.2 (current value: {{ $value }})'
+      expr: |
+        (
+          RSSaccount:http_request_latency:burnrate1h{job="rss-account-service"} > (14.4*(1-0.995000))
+          and
+          RSSaccount:http_request_latency:burnrate5m{job="rss-account-service"} > (14.4*(1-0.995000))
+        )
+        or
+        (
+          RSSaccount:http_request_latency:burnrate6h{job="rss-account-service"} > (6*(1-0.995000))
+          and
+          RSSaccount:http_request_latency:burnrate30m{job="rss-account-service"} > (6*(1-0.995000))
+        )
+      labels:
+        job: rss-account
+        severity: CRITICAL
+
+    - alert: RSSaccount_LatencyBudgetBurn
+      annotations:
+        summary: '[{{ $labels.severity }}] High requests latency budget burn for {{ $labels.app }}'
+        description: 'High latency ({{ $labels.latency}}s) ratio exceeds burn rate for job {{ $labels.job }}. Current value is {{ $value }} for {{ $labels.window }} window.'
+        message: 'High requests latency budget burn for job=rss-account-service,latency=1.2 (current value: {{ $value }})'
+      expr: |
+        (
+          RSSaccount:http_request_latency:burnrate1d{job="rss-account-service"} > (3*(1-0.995000))
+          and
+          RSSaccount:http_request_latency:burnrate2h{job="rss-account-service"} > (3*(1-0.995000))
+        )
+        or
+        (
+          RSSaccount:http_request_latency:burnrate3d{job="rss-account-service"} > (1*(1-0.995000))
+          and
+          RSSaccount:http_request_latency:burnrate6h{job="rss-account-service"} > (1*(1-0.995000))
+        )
+      labels:
+        job: rss-account
+        severity: WARNING
+
+    - expr: |
+        1 - 
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-account-service", status!~"5.."}[5m]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-account-service", status!~"5.."}[5m])) ) < 1.2 )
+        /
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-account-service"}[5m]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-account-service"}[5m])) ) >= 0 )
+      labels:
+        job: rss-account
+      record: RSSaccount:http_request_latency:burnrate5m
+
+    - expr: |
+        1 - 
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-account-service", status!~"5.."}[30m]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-account-service", status!~"5.."}[30m])) ) < 1.2 )
+        /
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-account-service"}[30m]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-account-service"}[30m])) ) >= 0 )
+      labels:
+        app: rss-account
+        job: rss-account-service
+        latency: "1.2"
+        window: "30 min"
+        
+      record: RSSaccount:http_request_latency:burnrate30m
+    - expr: |
+        1 - 
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-account-service", status!~"5.."}[1h]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-account-service", status!~"5.."}[1h])) ) < 1.2 )
+        /
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-account-service"}[1h]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-account-service"}[1h])) ) >= 0 )
+      labels:
+        app: rss-account
+        job: rss-account-service
+        latency: "1.2"
+        window: "1 hour"
+
+      record: RSSaccount:http_request_latency:burnrate1h
+    - expr: |
+        1 - 
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-account-service", status!~"5.."}[2h]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-account-service", status!~"5.."}[2h])) ) < 1.2 )
+        /
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-account-service"}[2h]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-account-service"}[2h])) ) >= 0 )
+      labels:
+        app: rss-account
+        job: rss-account-service
+        latency: "1.2"
+        window: "2 hour"
+
+      record: RSSaccount:http_request_latency:burnrate2h
+    - expr: |
+        1 - 
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-account-service", status!~"5.."}[6h]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-account-service", status!~"5.."}[6h])) ) < 1.2 )
+        /
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-account-service"}[6h]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-account-service"}[6h])) ) >= 0 )
+      labels:
+        app: rss-account
+        job: rss-account-service
+        latency: "1.2"
+        window: "6 hour"
+
+      record: RSSaccount:http_request_latency:burnrate6h
+    - expr: |
+        1 - 
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-account-service", status!~"5.."}[1d]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-account-service", status!~"5.."}[1d])) ) < 1.2 )
+        /
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-account-service"}[1d]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-account-service"}[1d])) ) >= 0 )
+      labels:
+        app: rss-account
+        job: rss-account-service
+        latency: "1.2"
+        window: "1 day"
+
+      record: RSSaccount:http_request_latency:burnrate1d
+    - expr: |
+        1 - 
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-account-service", status!~"5.."}[3d]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-account-service", status!~"5.."}[3d])) ) < 1.2 )
+        /
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-account-service"}[3d]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-account-service"}[3d])) ) >= 0 )
+      labels:
+        app: rss-account
+        job: rss-account-service
+        latency: "1.2"
+        window: "3 day"
+        
+      record: RSSaccount:http_request_latency:burnrate3d
+
+  - name: rssaccountSLOs-http_requests_error_rate
+    rules:
+    - alert: RSSaccount_ErrorBudgetBurn
+      annotations:
+        summary: '[{{ $labels.severity }}] High error budget burn for {{ $labels.app }}'
+        description: 'High error ratio exceeds burn rate for job {{ $labels.job }}. Current value is {{ $value }} for {{ $labels.window }} window.'
+        message: 'High error budget burn for job=rss-account-service (current value: {{ $value }})'
+      expr: |
+        sum(RSSaccount:http_request_error_rate:burnrate5m{job="rss-account-service"}) > (14.40 * (1-0.99500))
+        and
+        sum(RSSaccount:http_request_error_rate:burnrate1h{job="rss-account-service"}) > (14.40 * (1-0.99500))
+      for: 2m
+      labels:
+        job: rss-account
+        severity: CRITICAL
+
+    - alert: RSSaccount_ErrorBudgetBurn
+      annotations:
+        summary: '[{{ $labels.severity }}] High error budget burn for {{ $labels.app }}'
+        description: 'High error ratio exceeds burn rate for job {{ $labels.job }}. Current value is {{ $value }} for {{ $labels.window }} window.'
+        message: 'High error budget burn for job=rss-account-service (current value: {{ $value }})'
+      expr: |
+        sum(RSSaccount:http_request_error_rate:burnrate30m{job="rss-account-service"}) > (6.00 * (1-0.99500))
+        and
+        sum(RSSaccount:http_request_error_rate:burnrate6h{job="rss-account-service"}) > (6.00 * (1-0.99500))
+      for: 15m
+      labels:
+        job: rss-account
+        severity: CRITICAL
+
+    - alert: RSSaccount_ErrorBudgetBurn
+      annotations:
+        summary: '[{{ $labels.severity }}] High error budget burn for {{ $labels.app }}'
+        description: 'High error ratio exceeds burn rate for job {{ $labels.job }}. Current value is {{ $value }} for {{ $labels.window }} window.'
+        message: 'High error budget burn for job=rss-account-service (current value: {{ $value }})'
+      expr: |
+        sum(RSSaccount:http_request_error_rate:burnrate2h{job="rss-account-service"}) > (3.00 * (1-0.99500))
+        and
+        sum(RSSaccount:http_request_error_rate:burnrate1d{job="rss-account-service"}) > (3.00 * (1-0.99500))
+      for: 1h
+      labels:
+        job: rss-account
+        severity: WARNING
+
+    - alert: RSSaccount_ErrorBudgetBurn
+      annotations:
+        summary: '[{{ $labels.severity }}] High error budget burn for {{ $labels.app }}'
+        description: 'High error ratio exceeds burn rate for job {{ $labels.job }}. Current value is {{ $value }} for {{ $labels.window }} window.'
+        message: 'High error budget burn for job=rss-account-service (current value: {{ $value }})'
+      expr: |
+        sum(RSSaccount:http_request_error_rate:burnrate6h{job="rss-account-service"}) > (1.00 * (1-0.99500))
+        and
+        sum(RSSaccount:http_request_error_rate:burnrate3d{job="rss-account-service"}) > (1.00 * (1-0.99500))
+      for: 3h
+      labels:
+        job: rss-account
+        severity: WARNING
+
+    - expr: |
+        1 -
+        ( sum(rate(http_server_requests_seconds_count{job="rss-account-service", url!~"/actuator/.*", status!~"5.."}[1d]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-account-service", url!~"/actuator/.*"}[1d])) )
+      labels:
+        app: rss-account
+        job: rss-account-service
+        window: "1 day"
+      record: RSSaccount:http_request_error_rate:burnrate1d
+    - expr: |
+        1 -
+        ( sum(rate(http_server_requests_seconds_count{job="rss-account-service", url!~"/actuator/.*", status!~"5.."}[1h]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-account-service", url!~"/actuator/.*"}[1h])) )
+      labels:
+        app: rss-account
+        job: rss-account-service
+        window: "1 hour"
+      record: RSSaccount:http_request_error_rate:burnrate1h
+    - expr: |
+        1 -
+        ( sum(rate(http_server_requests_seconds_count{job="rss-account-service", url!~"/actuator/.*", status!~"5.."}[2h]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-account-service", url!~"/actuator/.*"}[2h])) )
+      labels:
+        app: rss-account
+        job: rss-account-service
+        window: "2 hour"
+      record: RSSaccount:http_request_error_rate:burnrate2h
+    - expr: |
+        1 -
+        ( sum(rate(http_server_requests_seconds_count{job="rss-account-service", url!~"/actuator/.*", status!~"5.."}[30m]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-account-service", url!~"/actuator/.*"}[30m])) )
+      labels:
+        app: rss-account
+        job: rss-account-service
+        window: "30 min"
+      record: RSSaccount:http_request_error_rate:burnrate30m
+    - expr: |
+        1 -
+        ( sum(rate(http_server_requests_seconds_count{job="rss-account-service", url!~"/actuator/.*", status!~"5.."}[3d]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-account-service", url!~"/actuator/.*"}[3d])) )
+      labels:
+        app: rss-account
+        job: rss-account-service
+        window: "3 day"
+      record: RSSaccount:http_request_error_rate:burnrate3d
+    - expr: |
+        1 -
+        ( sum(rate(http_server_requests_seconds_count{job="rss-account-service", url!~"/actuator/.*", status!~"5.."}[5m]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-account-service", url!~"/actuator/.*"}[5m])) )
+      labels:
+        app: rss-account
+        job: rss-account-service
+        window: "5 min"
+      record: RSSaccount:http_request_error_rate:burnrate5m
+    - expr: |
+        1 -
+        ( sum(rate(http_server_requests_seconds_count{job="rss-account-service", url!~"/actuator/.*", status!~"5.."}[6h]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-account-service", url!~"/actuator/.*"}[6h])) )
+      labels:
+        app: rss-account
+        job: rss-account-service
+        window: "6 hour"
+      record: RSSaccount:http_request_error_rate:burnrate6h
