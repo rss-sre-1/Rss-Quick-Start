@@ -1,2 +1,3 @@
 #!/bin/bash
-kubectl -n rss-evaluation $@
+Namespace="rss-evaluation";
+kubectl -n $Namespace $@
