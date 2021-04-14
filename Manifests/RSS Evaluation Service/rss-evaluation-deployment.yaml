@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rss-evaluation-deployment
+  namespace: rss-evaluation
+  labels:
+    app: rss-evaluation-service
+spec:
+  replicas: 3
+#  minReadySeconds: 20
+  selector:
+    matchLabels:
+      app: rss-evaluation-service
+      track: stable
+  template:
+    metadata:
+      labels:
+        app: rss-evaluation-service
+        track: stable
+    spec:
+      volumes:
+      - name: config-rss-evaluation-service
+        configMap:
+          name: rss-evaluation-fluent-conf
+      containers:
+      - name: fluentd
+        image: grafana/fluent-plugin-loki:latest
+        ports:
+        - containerPort: 24224
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: LOKI_URL
+          value: http://loki:3100
+        volumeMounts:
+        - name: config-rss-evaluation-service
+          mountPath: /fluentd/etc/fluent.conf
+          subPath: fluent.conf
+      - name: rss-evaluation
+        image: 855430746673.dkr.ecr.us-east-1.amazonaws.com/matt-oberlies-sre-p3-rss-evaluation:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DB_URL
+          valueFrom:
+            secretKeyRef:
+              name: rss-evaluation-credentials
+              key: url
+        - name: DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: rss-evaluation-credentials
+              key: username
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: rss-evaluation-credentials
+              key: password
+#        livenessProbe:
+#          httpGet:
+#            path: /actuator/health
+#            port: 8080
+#          initialDelaySeconds: 3
+#          periodSeconds: 3
+#          failureThreshold: 5
+#        startupProbe:
+#          httpGet:
+#            path: /actuator/health
+#            port: 8080
+#          initialDelaySeconds: 15
+#          periodSeconds: 3
+#          failureThreshold: 5

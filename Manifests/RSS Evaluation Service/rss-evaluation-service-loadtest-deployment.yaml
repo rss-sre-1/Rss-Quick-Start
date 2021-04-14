@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rss-evaluation-loadtest-deployment
+  namespace: rss-evaluation
+  labels:
+    app: rss-evaluation-service-load-test
+    track: loading
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: rss-evaluation-service-load-test
+      track: loading
+  template:
+    metadata:
+      labels:
+        app: rss-evaluation-service-load-test
+        track: loading
+    spec:
+      volumes:
+      - name: config-rss-evaluation-service
+        configMap:
+          name: rss-evaluation-fluent-conf
+      containers:
+      - name: fluentd
+        image: grafana/fluent-plugin-loki:latest
+        ports:
+        - containerPort: 24224
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: LOKI_URL
+          value: http://loki:3100
+        volumeMounts:
+        - name: config-rss-evaluation-service
+          mountPath: /fluentd/etc/fluent.conf
+          subPath: fluent.conf
+      - name: rss-evaluation-service-canary
+        image: 855430746673.dkr.ecr.us-east-1.amazonaws.com/matt-oberlies-sre-p3-rss-evaluation:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DB_URL
+          value: jdbc:postgresql://evaluation-data-postgresql.loadtesting.svc.cluster.local:5432/postgresdb
+        - name: DB_USERNAME
+          value: postgres
+        - name: DB_PASSWORD
+          value: IPhbafOeC7
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 30
