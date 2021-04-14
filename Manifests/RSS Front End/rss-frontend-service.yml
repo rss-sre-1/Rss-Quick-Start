@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: rss-client
+  name: rss-frontend-service
+  namespace: rss-frontend
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: rss-client
+  type: ClusterIP

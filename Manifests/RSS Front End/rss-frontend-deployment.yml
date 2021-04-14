@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rss-frontend-deployment
+  namespace: rss-frontend
+  labels:
+    app: rss-client
+#  annotations:
+#    deployment.kubernetes.io/revision: "1"
+spec:
+#  progressDeadlineSeconds: 600
+  replicas: 3
+#  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: rss-client
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: rss-client
+    spec:
+      containers:
+      - image: 855430746673.dkr.ecr.us-east-1.amazonaws.com/matt-oberlies-sre-p3-rss-frontend:latest
+        imagePullPolicy: Always
+        name: rss-client
+        ports:
+        - containerPort: 80
+          protocol: TCP
+#
+        resources: {}
+        terminationMessagePath: /var/log/rss-frontend-termination-log
+        terminationMessagePolicy: File
+#        livenessProbe:
+#          httpGet:
+#            path: /rss
+#            port: 80
+#        startupProbe:
+#          httpGet:
+#            path: /rss
+#            port: 80
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
