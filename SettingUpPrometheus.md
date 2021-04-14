@@ -2,9 +2,8 @@
 Prometheus is a monitoring and alerting toolkit. It has a multi-dimensional data model with time series data distinguished by a metric name and key-value pair. It allows for highly customizable data collection and provides observability over your system.
 
 
-### Install Prometheus helmchart
+### Install Prometheus helm chart
 Here we installed the prometheus helm chart. This creates a prometheus object in the cluster named kube-prometheus-stack. 
-Save [values.yaml](https://github.com/rss--values.yaml) file in current directory.
 This helm chart install these objects: kubernetes/kube-state-metrics, prometheus-community/prometheus-node-exporter, and grafana/grafana. Grafana was disabled on this helm chart so that it could be installed individually by the grafana team. 
 This is where we got the helm chart to install prometheus: [here](https://github.com/prometheus-community/helm-charts.git).
 This configuration inside the helm chart is where we configured prometheus alertmanager. This was sending alerts to slack. Do not commit this file with your slack webhook url still in here: the webhook will stop working and you will need to get a new one.
@@ -150,6 +149,6 @@ kubectl apply -f [servicemonitor name] -n rss-[servive name]
 Some microservices may implement the servicemonitor in the setup.yaml file.
 
 ### Alerting Rules
-There are rules for recording and alerting on high error rates and latencies. These rules are based on a 99.5% service level objective (SLO). To customize rules, [here]( https://prometheus.io/docs/prometheus/latest/configuration/recording_rules/
+There are rules in each microservice's repository for recording and alerting on high error rates and latencies. These rules are based on a 99.5% service level objective (SLO). To customize rules, [here]( https://prometheus.io/docs/prometheus/latest/configuration/recording_rules/
 ) is more information.
 
