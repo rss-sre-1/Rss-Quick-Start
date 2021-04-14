@@ -1,7 +1,7 @@
-### Bash Scripts and any other scripting files used to help setup, manage, and monitor the system.
+## Bash Scripts and any other scripting files used to help setup, manage, and monitor the system.
 
 
-#### Sebastian
+### Sebastian
 Sebastian is a light weight script that continuous calls provided pipeline (Pipeline.sh) style scripts.
 
 ##### Usage:
@@ -14,7 +14,7 @@ Set the location of the pipeline.sh script in the ADD PIPELINE SCRIPT LOCATIONS 
 Increase or decrease the interval between attempting the pipeline by changing the Interval variable (s second, m minute, h hour).
 To stop Sebastian, enter the following command in the same directory, ``echo " " > stop;`` or create a file in the same directory call stop with content in it. Running Sebastian.sh again will give you to option to remove the file in order to continue. Alternatively, when the process is sleeping, not outputing from an active pipeline, you can press \[CRTL\] + C to end the script.
 
-#### Pipeline
+### Pipeline
 This script mimics a pipeline, such as in jenkins, currently having stages for image building with Docker and deployment on a kubernetes cluster with kubectl. It will scrape a github repository's commit page comparing a previous logged commit to the one it finds. If it finds a new commit it will run a git pull (this file must be placed in the local repo directory), build & push a new docker image, then reapply the image onto the deployment.
 
 ##### Usage:
