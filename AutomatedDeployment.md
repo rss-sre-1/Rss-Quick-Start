@@ -3,6 +3,7 @@ The Revature Swag Shop(hereafter RSS) is intended for deployment to a Kubernetes
 
 ## overview
 The automated deployment of RSS canaries employes 2 technoligies used in tandam.  Firstly an number of Github workflows have been implemented which scale the size of pods on the cluster as appropriate for the current step of the deployment proccess.  Secondnly a Jenkens pipeline is used to implement load-testing of a new deployment. 
+
 A number of terms used herein have been defined below as they have particular definitions pertaining to these automation technologies:
 * Action--A set of actions taken by Github when a defined trigger condition is met
 * Workflow--A text file that defined the actions taken when a corisponding Github Action is triggered
@@ -12,6 +13,14 @@ The following can be found in the repository of each microservice:
 * 4 Github Actions workflows 
 * a Jenkinsfile to configure the use of a Jenkins pipeline
 * 9 Github Repository secrets to be used by the aforementioned workflows.
+
+### flow of the automation
+* a push is made to the default branch of a Github repo
+* workflow 'BUILD' is triggered by push
+* Jenkins pipeline is triggered by BUILD
+* workflow 'CREATE_CANARY' is triggered by jenkins
+* Jenkins waits for user input to either promote or remove the canary
+* workflow 'PROMOTE_CANARY' || 'REJECT_CANARY' is triggered by the pipeline
 
 ### Configureation
 * set up a Jenkins Pipeline
@@ -26,6 +35,11 @@ The following can be found in the repository of each microservice:
 ** ~-load-test-service
 *** '~' refers to the name of the microservice
 
+## potential pitfalls/further development ideas
+* only workflows extant in the default branch of a repository will appear in the 'Aactions' tab of that repository
+* each individual 'run' tag within a workflow defined a new instance of a shell to run in.  Actions taken in one do not persist beyond the length of that tun-tag
+* commented out lines within the 'run' tag will cause the workflow to fail.
+** they system does not properly handle comments as they are read as shell commands and thus the commenting format will be read as improper syntax
 
 ## The Github Actions
 
@@ -58,18 +72,17 @@ Below are listed the tasks performed by each Workflow
 
 #### Reject_Cannary
 * trigger: an HTTP POST request send by the Jenkins Pipeline
-** spin-down the canary-deployment to dormancy
+* spin-down the canary-deployment to dormancy
 
 ### general notes
 Github workflows are YAML files and and have the following general structure
-* name-the name that the Action will be displayed under
-* env-the variables used by the workflow
+* name tag defines the name that the Action will be displayed under
+* env tag contians a list of the variables used by the workflow
+
+## The Jenkins Pipeline
+This pipeline is defined by a flat file 'Jenkinsfile' that can be found in the root directory.  The pipeline outline is as described below
 
 
-## Jenkins Action
 
 ## Github Repository Secrets
 
-## potential pitfalls/further development ideas
-* only workflows extant in the default branch of a repository will appear in the 'Aactions' tab of that repository
-* each individual 'run' tag within a workflow defined a new instance of a shell to run in.  Actions taken in one do not persist beyond the length of that tun-tag
