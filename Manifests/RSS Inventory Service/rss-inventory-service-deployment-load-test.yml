@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rss-inventory-service-deployment-load-test
+  labels:
+    app: rss-inventory-service-load-test
+    track: loading
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: rss-inventory-service-load-test
+      track: loading
+  template:
+    metadata:
+      labels:
+        app: rss-inventory-service-load-test
+        track: loading
+    spec:
+      volumes:
+        - name: config
+          configMap:
+            name: fluent-conf
+      containers:
+      - name: fluentd
+        ports:
+        - containerPort: 24224
+        image: grafana/fluent-plugin-loki:latest
+        env: 
+        - name: LOKI_URL
+          value: http://loki:3100
+        volumeMounts:
+        - name: config
+          mountPath: /fluentd/etc/fluent.conf
+          subPath: fluent.conf
+      - name: rss-inventory-service
+        image: 855430746673.dkr.ecr.us-east-1.amazonaws.com/matt-oberlies-sre-p3-rss-inventory:latest
+        ports:
+        - containerPort: 8989
+        # livenessProbe:
+        #   httpGet:
+        #     path: /actuator/health
+        #     port: 8989
+        #   initialDelaySeconds: 30
+        #   periodSeconds: 30
+        #   failureThreshold: 5
+        # startupProbe:
+        #   httpGet:
+        #     path: /actuator/health
+        #     port: 8989
+        #   initialDelaySeconds: 15
+        #   periodSeconds: 3
+        #   failureThreshold: 5
+        env:
+        - name: DB_URL
+          value: jdbc:postgresql://inventory-data-postgresql.loadtesting.svc.cluster.local:5432/postgresdb
+        - name: DB_USERNAME
+          value: postgres
+        - name: DB_PASSWORD
+          value: zECfj7LPEQ

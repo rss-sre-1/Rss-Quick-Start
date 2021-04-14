@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata: 
+  name: fluent-conf
+  namespace: rss-inventory
+data:
+    fluent.conf: "<source>\r\n    @type forward\r\n    bind 0.0.0.0\r\n    port 24224\r\n</source>\r\n\r\n<match
+    **>\r\n    @type loki\r\n    url \"http://loki:3100\"\r\n    flush_interval 1s\r\n
+    \   flush_at_shutdown false\r\n\r\n    extra_labels {\"source\": \"fluentd\",
+    \"service\": \"rss-inventory-service\", \"application\": \"rss\"}\r\n</match>"

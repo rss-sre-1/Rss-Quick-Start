@@ -1,0 +1,294 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: rss-inventory-prometheus-rules
+  namespace: rss-inventory
+  labels:
+    job: rss-inventory-service
+    release: kube-prometheus-stack
+    app: kube-prometheus-stack
+    team: sre
+spec:
+  groups:
+  - name: rssinventorySLOs-http_request_latency
+    rules:
+    - alert: RSSinventory_LatencyBudgetBurn
+      annotations:
+        summary: '[{{ $labels.severity }}] High requests latency budget burn for {{ $labels.app }}'
+        description: 'High latency ({{ $labels.latency}}s) ratio exceeds burn rate for job {{ $labels.job }}. Current value is {{ $value }} for {{ $labels.window }} window.'        
+        message: 'High requests latency budget burn for job=rss-inventory-service,latency=1.2 (current value: {{ $value }})'
+      expr: |
+        (
+          RSSinventory:http_request_latency:burnrate1h{job="rss-inventory-service"} > (14.4*(1-0.995000))
+          and
+          RSSinventory:http_request_latency:burnrate5m{job="rss-inventory-service"} > (14.4*(1-0.995000))
+        )
+        or
+        (
+          RSSinventory:http_request_latency:burnrate6h{job="rss-inventory-service"} > (6*(1-0.995000))
+          and
+          RSSinventory:http_request_latency:burnrate30m{job="rss-inventory-service"} > (6*(1-0.995000))
+        )
+      labels:
+        job: rss-inventory
+        severity: CRITICAL
+
+    - alert: RSSinventory_LatencyBudgetBurn
+      annotations:
+        summary: '[{{ $labels.severity }}] High requests latency budget burn for {{ $labels.app }}'
+        description: 'High latency ({{ $labels.latency}}s) ratio exceeds burn rate for job {{ $labels.job }}. Current value is {{ $value }} for {{ $labels.window }} window.'
+        message: 'High requests latency budget burn for job=rss-inventory-service,latency=1.2 (current value: {{ $value }})'
+      expr: |
+        (
+          RSSinventory:http_request_latency:burnrate1d{job="rss-inventory-service"} > (3*(1-0.995000))
+          and
+          RSSinventory:http_request_latency:burnrate2h{job="rss-inventory-service"} > (3*(1-0.995000))
+        )
+        or
+        (
+          RSSinventory:http_request_latency:burnrate3d{job="rss-inventory-service"} > (1*(1-0.995000))
+          and
+          RSSinventory:http_request_latency:burnrate6h{job="rss-inventory-service"} > (1*(1-0.995000))
+        )
+      labels:
+        job: rss-inventory
+        severity: WARNING
+
+    - expr: |
+        1 - 
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-inventory-service", status!~"5.."}[5m]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-inventory-service", status!~"5.."}[5m])) ) < 1.2 )
+        /
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-inventory-service"}[5m]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-inventory-service"}[5m])) ) >= 0 )
+      labels:
+        job: rss-inventory
+      record: RSSinventory:http_request_latency:burnrate5m
+
+    - expr: |
+        1 - 
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-inventory-service", status!~"5.."}[30m]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-inventory-service", status!~"5.."}[30m])) ) < 1.2 )
+        /
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-inventory-service"}[30m]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-inventory-service"}[30m])) ) >= 0 )
+      labels:
+        app: rss-inventory
+        job: rss-inventory-service
+        latency: "1.2"
+        window: "30 min"
+        
+      record: RSSinventory:http_request_latency:burnrate30m
+    - expr: |
+        1 - 
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-inventory-service", status!~"5.."}[1h]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-inventory-service", status!~"5.."}[1h])) ) < 1.2 )
+        /
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-inventory-service"}[1h]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-inventory-service"}[1h])) ) >= 0 )
+      labels:
+        app: rss-inventory
+        job: rss-inventory-service
+        latency: "1.2"
+        window: "1 hour"
+
+      record: RSSinventory:http_request_latency:burnrate1h
+    - expr: |
+        1 - 
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-inventory-service", status!~"5.."}[2h]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-inventory-service", status!~"5.."}[2h])) ) < 1.2 )
+        /
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-inventory-service"}[2h]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-inventory-service"}[2h])) ) >= 0 )
+      labels:
+        app: rss-inventory
+        job: rss-inventory-service
+        latency: "1.2"
+        window: "2 hour"
+
+      record: RSSinventory:http_request_latency:burnrate2h
+    - expr: |
+        1 - 
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-inventory-service", status!~"5.."}[6h]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-inventory-service", status!~"5.."}[6h])) ) < 1.2 )
+        /
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-inventory-service"}[6h]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-inventory-service"}[6h])) ) >= 0 )
+      labels:
+        app: rss-inventory
+        job: rss-inventory-service
+        latency: "1.2"
+        window: "6 hour"
+
+      record: RSSinventory:http_request_latency:burnrate6h
+    - expr: |
+        1 - 
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-inventory-service", status!~"5.."}[1d]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-inventory-service", status!~"5.."}[1d])) ) < 1.2 )
+        /
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-inventory-service"}[1d]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-inventory-service"}[1d])) ) >= 0 )
+      labels:
+        app: rss-inventory
+        job: rss-inventory-service
+        latency: "1.2"
+        window: "1 day"
+
+      record: RSSinventory:http_request_latency:burnrate1d
+    - expr: |
+        1 - 
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-inventory-service", status!~"5.."}[3d]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-inventory-service", status!~"5.."}[3d])) ) < 1.2 )
+        /
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-inventory-service"}[3d]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-inventory-service"}[3d])) ) >= 0 )
+      labels:
+        app: rss-inventory
+        job: rss-inventory-service
+        latency: "1.2"
+        window: "3 day"
+        
+      record: RSSinventory:http_request_latency:burnrate3d
+
+  - name: rssinventorySLOs-http_requests_error_rate
+    rules:
+    - alert: RSSinventory_ErrorBudgetBurn
+      annotations:
+        summary: '[{{ $labels.severity }}] High error budget burn for {{ $labels.app }}'
+        description: 'High error ratio exceeds burn rate for job {{ $labels.job }}. Current value is {{ $value }} for {{ $labels.window }} window.'
+        message: 'High error budget burn for job=rss-inventory-service (current value: {{ $value }})'
+      expr: |
+        sum(RSSinventory:http_request_error_rate:burnrate5m{job="rss-inventory-service"}) > (14.40 * (1-0.99500))
+        and
+        sum(RSSinventory:http_request_error_rate:burnrate1h{job="rss-inventory-service"}) > (14.40 * (1-0.99500))
+      for: 2m
+      labels:
+        job: rss-inventory
+        severity: CRITICAL
+
+    - alert: RSSinventory_ErrorBudgetBurn
+      annotations:
+        summary: '[{{ $labels.severity }}] High error budget burn for {{ $labels.app }}'
+        description: 'High error ratio exceeds burn rate for job {{ $labels.job }}. Current value is {{ $value }} for {{ $labels.window }} window.'
+        message: 'High error budget burn for job=rss-inventory-service (current value: {{ $value }})'
+      expr: |
+        sum(RSSinventory:http_request_error_rate:burnrate30m{job="rss-inventory-service"}) > (6.00 * (1-0.99500))
+        and
+        sum(RSSinventory:http_request_error_rate:burnrate6h{job="rss-inventory-service"}) > (6.00 * (1-0.99500))
+      for: 15m
+      labels:
+        job: rss-inventory
+        severity: CRITICAL
+
+    - alert: RSSinventory_ErrorBudgetBurn
+      annotations:
+        summary: '[{{ $labels.severity }}] High error budget burn for {{ $labels.app }}'
+        description: 'High error ratio exceeds burn rate for job {{ $labels.job }}. Current value is {{ $value }} for {{ $labels.window }} window.'
+        message: 'High error budget burn for job=rss-inventory-service (current value: {{ $value }})'
+      expr: |
+        sum(RSSinventory:http_request_error_rate:burnrate2h{job="rss-inventory-service"}) > (3.00 * (1-0.99500))
+        and
+        sum(RSSinventory:http_request_error_rate:burnrate1d{job="rss-inventory-service"}) > (3.00 * (1-0.99500))
+      for: 1h
+      labels:
+        job: rss-inventory
+        severity: WARNING
+
+    - alert: RSSinventory_ErrorBudgetBurn
+      annotations:
+        summary: '[{{ $labels.severity }}] High error budget burn for {{ $labels.app }}'
+        description: 'High error ratio exceeds burn rate for job {{ $labels.job }}. Current value is {{ $value }} for {{ $labels.window }} window.'
+        message: 'High error budget burn for job=rss-inventory-service (current value: {{ $value }})'
+      expr: |
+        sum(RSSinventory:http_request_error_rate:burnrate6h{job="rss-inventory-service"}) > (1.00 * (1-0.99500))
+        and
+        sum(RSSinventory:http_request_error_rate:burnrate3d{job="rss-inventory-service"}) > (1.00 * (1-0.99500))
+      for: 3h
+      labels:
+        job: rss-inventory
+        severity: WARNING
+
+    - expr: |
+        1 -
+        ( sum(rate(http_server_requests_seconds_count{job="rss-inventory-service", url!~"/actuator/.*", status!~"5.."}[1d]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-inventory-service", url!~"/actuator/.*"}[1d])) )
+      labels:
+        app: rss-inventory
+        job: rss-inventory-service
+        window: "1 day"
+      record: RSSinventory:http_request_error_rate:burnrate1d
+    - expr: |
+        1 -
+        ( sum(rate(http_server_requests_seconds_count{job="rss-inventory-service", url!~"/actuator/.*", status!~"5.."}[1h]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-inventory-service", url!~"/actuator/.*"}[1h])) )
+      labels:
+        app: rss-inventory
+        job: rss-inventory-service
+        window: "1 hour"
+      record: RSSinventory:http_request_error_rate:burnrate1h
+    - expr: |
+        1 -
+        ( sum(rate(http_server_requests_seconds_count{job="rss-inventory-service", url!~"/actuator/.*", status!~"5.."}[2h]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-inventory-service", url!~"/actuator/.*"}[2h])) )
+      labels:
+        app: rss-inventory
+        job: rss-inventory-service
+        window: "2 hour"
+      record: RSSinventory:http_request_error_rate:burnrate2h
+    - expr: |
+        1 -
+        ( sum(rate(http_server_requests_seconds_count{job="rss-inventory-service", url!~"/actuator/.*", status!~"5.."}[30m]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-inventory-service", url!~"/actuator/.*"}[30m])) )
+      labels:
+        app: rss-inventory
+        job: rss-inventory-service
+        window: "30 min"
+      record: RSSinventory:http_request_error_rate:burnrate30m
+    - expr: |
+        1 -
+        ( sum(rate(http_server_requests_seconds_count{job="rss-inventory-service", url!~"/actuator/.*", status!~"5.."}[3d]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-inventory-service", url!~"/actuator/.*"}[3d])) )
+      labels:
+        app: rss-inventory
+        job: rss-inventory-service
+        window: "3 day"
+      record: RSSinventory:http_request_error_rate:burnrate3d
+    - expr: |
+        1 -
+        ( sum(rate(http_server_requests_seconds_count{job="rss-inventory-service", url!~"/actuator/.*", status!~"5.."}[5m]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-inventory-service", url!~"/actuator/.*"}[5m])) )
+      labels:
+        app: rss-inventory
+        job: rss-inventory-service
+        window: "5 min"
+      record: RSSinventory:http_request_error_rate:burnrate5m
+    - expr: |
+        1 -
+        ( sum(rate(http_server_requests_seconds_count{job="rss-inventory-service", url!~"/actuator/.*", status!~"5.."}[6h]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-inventory-service", url!~"/actuator/.*"}[6h])) )
+      labels:
+        app: rss-inventory
+        job: rss-inventory-service
+        window: "6 hour"
+      record: RSSinventory:http_request_error_rate:burnrate6h

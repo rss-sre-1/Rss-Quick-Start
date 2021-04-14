@@ -1,0 +1,321 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rss-inventory-deployment
+  namespace: rss-inventory
+  labels:
+    app: rss-inventory-service
+spec:
+  replicas: 3
+  minReadySeconds: 20
+  selector:
+    matchLabels:
+      app: rss-inventory-service
+  template:
+    metadata:
+      labels:
+        app: rss-inventory-service
+    spec:
+      volumes:
+        - name: config
+          configMap:
+            name: fluent-conf
+      containers:
+      - name: fluentd
+        ports:
+        - containerPort: 24224
+        image: grafana/fluent-plugin-loki:latest
+        env: 
+        - name: LOKI_URL
+          value: http://loki:3100
+        volumeMounts:
+        - name: config
+          mountPath: /fluentd/etc/fluent.conf
+          subPath: fluent.conf
+      - name: rss-inventory-service
+        image: 855430746673.dkr.ecr.us-east-1.amazonaws.com/matt-oberlies-sre-p3-rss-inventory:latest
+        ports:
+        - containerPort: 8989
+        # livenessProbe:
+        #   httpGet:
+        #     path: /actuator/health
+        #     port: 8989
+        #   initialDelaySeconds: 30
+        #   periodSeconds: 30
+        #   failureThreshold: 5
+        # startupProbe:
+        #   httpGet:
+        #     path: /actuator/health
+        #     port: 8989
+        #   initialDelaySeconds: 15
+        #   periodSeconds: 3
+        #   failureThreshold: 5
+        env:
+        - name: DB_URL
+          valueFrom:
+            secretKeyRef:
+              name: rss-inventory-credentials
+              key: url
+        - name: DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: rss-inventory-credentials
+              key: username
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: rss-inventory-credentials
+              key: password
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: rss-inventory-service
+  namespace: rss-inventory
+  labels:
+    app: rss-inventory-service
+  annotations:
+    prometheus.io/path: /actuator/prometheus
+    prometheus.io/port: "8989"
+    prometheus.io/scrape: "true"
+spec:
+  selector:
+    app: rss-inventory-service 
+  ports:
+  - name: http
+    protocol: TCP
+    port: 8989
+    targetPort: 8989
+
+---
+
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: rss-inventory-ingress
+  namespace: rss-inventory
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /inventory(.+)
+        backend:
+          serviceName: rss-inventory-service
+          servicePort: 8989
+
+---
+
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: rss-inventory-service-monitor
+  namespace: rss-inventory
+  labels:
+    app: rss-inventory-service
+    release: kube-prometheus-stack
+    team: rss-inventory-service
+spec:
+  selector:
+    matchLabels:
+      app: rss-inventory-service
+  namespaceSelector:
+    matchNames: 
+    - rss-inventory
+  endpoints:
+  - port: http
+    path: /actuator/prometheus
+    interval: 10s
+
+---
+
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  namespace: rss-inventory
+  name: namespace-reader
+rules:
+  - apiGroups: ["", "extensions", "apps"]
+    resources: ["configmaps", "pods", "services", "endpoints", "secrets"]
+    verbs: ["get", "list", "watch"]
+
+---
+
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: namespace-reader-binding
+  namespace: rss-inventory
+subjects:
+- kind: ServiceAccount
+  name: default
+  apiGroup: ""
+roleRef:
+  kind: Role
+  name: namespace-reader
+  apiGroup: ""
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rss-inventory-deployment-canary
+  namespace: rss-inventory
+  labels:
+    app: rss-inventory-service
+    track: canary
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: rss-inventory-service
+      track: canary
+  template:
+    metadata:
+      labels:
+        app: rss-inventory-service
+        track: canary
+    spec:
+      volumes:
+        - name: config
+          configMap:
+            name: fluent-conf
+      containers:
+      - name: fluentd
+        ports:
+        - containerPort: 24224
+        image: grafana/fluent-plugin-loki:latest
+        env: 
+        - name: LOKI_URL
+          value: http://loki:3100
+        volumeMounts:
+        - name: config
+          mountPath: /fluentd/etc/fluent.conf
+          subPath: fluent.conf
+      - name: rss-inventory-service
+        image: 855430746673.dkr.ecr.us-east-1.amazonaws.com/matt-oberlies-sre-p3-rss-inventory:latest
+        ports:
+        - containerPort: 8989
+        # livenessProbe:
+        #   httpGet:
+        #     path: /actuator/health
+        #     port: 8989
+        #   initialDelaySeconds: 30
+        #   periodSeconds: 30
+        #   failureThreshold: 5
+        # startupProbe:
+        #   httpGet:
+        #     path: /actuator/health
+        #     port: 8989
+        #   initialDelaySeconds: 15
+        #   periodSeconds: 3
+        #   failureThreshold: 5
+        env:
+        - name: DB_URL
+          valueFrom:
+            secretKeyRef:
+              name: rss-inventory-credentials
+              key: url
+        - name: DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: rss-inventory-credentials
+              key: username
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: rss-inventory-credentials
+              key: password
+              
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rss-inventory-service-deployment-load-test
+  labels:
+    app: rss-inventory-service-load-test
+    track: loading
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: rss-inventory-service-load-test
+      track: loading
+  template:
+    metadata:
+      labels:
+        app: rss-inventory-service-load-test
+        track: loading
+    spec:
+      volumes:
+        - name: config
+          configMap:
+            name: fluent-conf
+      containers:
+      - name: fluentd
+        ports:
+        - containerPort: 24224
+        image: grafana/fluent-plugin-loki:latest
+        env: 
+        - name: LOKI_URL
+          value: http://loki:3100
+        volumeMounts:
+        - name: config
+          mountPath: /fluentd/etc/fluent.conf
+          subPath: fluent.conf
+      - name: rss-inventory-service
+        image: 855430746673.dkr.ecr.us-east-1.amazonaws.com/matt-oberlies-sre-p3-rss-inventory:latest
+        ports:
+        - containerPort: 8989
+        # livenessProbe:
+        #   httpGet:
+        #     path: /actuator/health
+        #     port: 8989
+        #   initialDelaySeconds: 30
+        #   periodSeconds: 30
+        #   failureThreshold: 5
+        # startupProbe:
+        #   httpGet:
+        #     path: /actuator/health
+        #     port: 8989
+        #   initialDelaySeconds: 15
+        #   periodSeconds: 3
+        #   failureThreshold: 5
+        env:
+        - name: DB_URL
+          value: jdbc:postgresql://inventory-data-postgresql.loadtesting.svc.cluster.local:5432/postgresdb
+        - name: DB_USERNAME
+          value: postgres
+        - name: DB_PASSWORD
+          value: zECfj7LPEQ
+          
+--- 
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: rss-inventory-service-load-test
+  namespace: rss-inventory
+  labels:
+    app: rss-inventory-service
+  annotations:
+    prometheus.io/path: /actuator/prometheus
+    prometheus.io/port: "8989"
+    prometheus.io/scrape: "true"
+spec:
+  selector:
+    app: rss-inventory-service-load-test
+  ports:
+  - name: http
+    protocol: TCP
+    port: 8989
+    targetPort: 8989
+
+  
