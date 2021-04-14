@@ -1,0 +1,294 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: rss-cart-prometheus-rules
+  namespace: rss-cart
+  labels:
+    job: rss-cart-service
+    release: kube-prometheus-stack
+    app: kube-prometheus-stack
+    team: sre
+spec:
+  groups:
+  - name: rsscartSLOs-http_request_latency
+    rules:
+    - alert: RSScart_LatencyBudgetBurn
+      annotations:
+        summary: '[{{ $labels.severity }}] High requests latency budget burn for {{ $labels.app }}'
+        description: 'High latency ({{ $labels.latency}}s) ratio exceeds burn rate for job {{ $labels.job }}. Current value is {{ $value }} for {{ $labels.window }} window.'        
+        message: 'High requests latency budget burn for job=rss-cart-service,latency=1.2 (current value: {{ $value }})'
+      expr: |
+        (
+          RSScart_http_request_latency:burnrate1h{job="rss-cart-service"} > (14.4*(1-0.995000))
+          and
+          RSScart_http_request_latency:burnrate5m{job="rss-cart-service"} > (14.4*(1-0.995000))
+        )
+        or
+        (
+          RSScart_http_request_latency:burnrate6h{job="rss-cart-service"} > (6*(1-0.995000))
+          and
+          RSScart_http_request_latency:burnrate30m{job="rss-cart-service"} > (6*(1-0.995000))
+        )
+      labels:
+        job: rss-cart
+        severity: CRITICAL
+
+    - alert: RSScart_LatencyBudgetBurn
+      annotations:
+        summary: '[{{ $labels.severity }}] High requests latency budget burn for {{ $labels.app }}'
+        description: 'High latency ({{ $labels.latency}}s) ratio exceeds burn rate for job {{ $labels.job }}. Current value is {{ $value }} for {{ $labels.window }} window.'
+        message: 'High requests latency budget burn for job=rss-cart-service,latency=1.2 (current value: {{ $value }})'
+      expr: |
+        (
+          RSScart_http_request_latency:burnrate1d{job="rss-cart-service"} > (3*(1-0.995000))
+          and
+          RSScart_http_request_latency:burnrate2h{job="rss-cart-service"} > (3*(1-0.995000))
+        )
+        or
+        (
+          RSScart_http_request_latency:burnrate3d{job="rss-cart-service"} > (1*(1-0.995000))
+          and
+          RSScart_http_request_latency:burnrate6h{job="rss-cart-service"} > (1*(1-0.995000))
+        )
+      labels:
+        job: rss-cart
+        severity: WARNING
+
+    - expr: |
+        1 - 
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-cart-service", status!~"5.."}[5m]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-cart-service", status!~"5.."}[5m])) ) < 0.01 )
+        /
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-cart-service"}[5m]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-cart-service"}[5m])) ) >= 0 )
+      labels:
+        job: rss-cart
+      record: RSScart_http_request_latency:burnrate5m
+
+    - expr: |
+        1 - 
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-cart-service", status!~"5.."}[30m]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-cart-service", status!~"5.."}[30m])) ) < 0.01 )
+        /
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-cart-service"}[30m]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-cart-service"}[30m])) ) >= 0 )
+      labels:
+        app: rss-cart
+        job: rss-cart-service
+        latency: "1.2"
+        window: "30 min"
+        
+      record: RSScart_http_request_latency:burnrate30m
+    - expr: |
+        1 - 
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-cart-service", status!~"5.."}[1h]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-cart-service", status!~"5.."}[1h])) ) < 0.01 )
+        /
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-cart-service"}[1h]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-cart-service"}[1h])) ) >= 0 )
+      labels:
+        app: rss-cart
+        job: rss-cart-service
+        latency: "1.2"
+        window: "1 hour"
+
+      record: RSScart_http_request_latency:burnrate1h
+    - expr: |
+        1 - 
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-cart-service", status!~"5.."}[2h]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-cart-service", status!~"5.."}[2h])) ) < 0.01 )
+        /
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-cart-service"}[2h]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-cart-service"}[2h])) ) >= 0 )
+      labels:
+        app: rss-cart
+        job: rss-cart-service
+        latency: "1.2"
+        window: "2 hour"
+
+      record: RSScart_http_request_latency:burnrate2h
+    - expr: |
+        1 - 
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-cart-service", status!~"5.."}[6h]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-cart-service", status!~"5.."}[6h])) ) < 0.01 )
+        /
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-cart-service"}[6h]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-cart-service"}[6h])) ) >= 0 )
+      labels:
+        app: rss-cart
+        job: rss-cart-service
+        latency: "1.2"
+        window: "6 hour"
+
+      record: RSScart_http_request_latency:burnrate6h
+    - expr: |
+        1 - 
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-cart-service", status!~"5.."}[1d]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-cart-service", status!~"5.."}[1d])) ) < 0.01 )
+        /
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-cart-service"}[1d]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-cart-service"}[1d])) ) >= 0 )
+      labels:
+        app: rss-cart
+        job: rss-cart-service
+        latency: "1.2"
+        window: "1 day"
+
+      record: RSScart_http_request_latency:burnrate1d
+    - expr: |
+        1 - 
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-cart-service", status!~"5.."}[3d]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-cart-service", status!~"5.."}[3d])) ) < 0.01 )
+        /
+        (( sum(rate(http_server_requests_seconds_sum{job="rss-cart-service"}[3d]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-cart-service"}[3d])) ) >= 0 )
+      labels:
+        app: rss-cart
+        job: rss-cart-service
+        latency: "1.2"
+        window: "3 day"
+        
+      record: RSScart_http_request_latency:burnrate3d
+
+  - name: rsscartSLOs-http_requests_error_rate
+    rules:
+    - alert: RSScart_ErrorBudgetBurn
+      annotations:
+        summary: '[{{ $labels.severity }}] High error budget burn for {{ $labels.app }}'
+        description: 'High error ratio exceeds burn rate for job {{ $labels.job }}. Current value is {{ $value }} for {{ $labels.window }} window.'
+        message: 'High error budget burn for job=rss-cart-service (current value: {{ $value }})'
+      expr: |
+        sum(RSScart_http_request_error_rate:burnrate5m{job="rss-cart-service"}) > (14.40 * (1-0.99500))
+        and
+        sum(RSScart_http_request_error_rate:burnrate1h{job="rss-cart-service"}) > (14.40 * (1-0.99500))
+      for: 2m
+      labels:
+        job: rss-cart
+        severity: CRITICAL
+
+    - alert: RSScart_ErrorBudgetBurn
+      annotations:
+        summary: '[{{ $labels.severity }}] High error budget burn for {{ $labels.app }}'
+        description: 'High error ratio exceeds burn rate for job {{ $labels.job }}. Current value is {{ $value }} for {{ $labels.window }} window.'
+        message: 'High error budget burn for job=rss-cart-service (current value: {{ $value }})'
+      expr: |
+        sum(RSScart_http_request_error_rate:burnrate30m{job="rss-cart-service"}) > (6.00 * (1-0.99500))
+        and
+        sum(RSScart_http_request_error_rate:burnrate6h{job="rss-cart-service"}) > (6.00 * (1-0.99500))
+      for: 15m
+      labels:
+        job: rss-cart
+        severity: CRITICAL
+
+    - alert: RSScart_ErrorBudgetBurn
+      annotations:
+        summary: '[{{ $labels.severity }}] High error budget burn for {{ $labels.app }}'
+        description: 'High error ratio exceeds burn rate for job {{ $labels.job }}. Current value is {{ $value }} for {{ $labels.window }} window.'
+        message: 'High error budget burn for job=rss-cart-service (current value: {{ $value }})'
+      expr: |
+        sum(RSScart_http_request_error_rate:burnrate2h{job="rss-cart-service"}) > (3.00 * (1-0.99500))
+        and
+        sum(RSScart_http_request_error_rate:burnrate1d{job="rss-cart-service"}) > (3.00 * (1-0.99500))
+      for: 1h
+      labels:
+        job: rss-cart
+        severity: WARNING
+
+    - alert: RSScart_ErrorBudgetBurn
+      annotations:
+        summary: '[{{ $labels.severity }}] High error budget burn for {{ $labels.app }}'
+        description: 'High error ratio exceeds burn rate for job {{ $labels.job }}. Current value is {{ $value }} for {{ $labels.window }} window.'
+        message: 'High error budget burn for job=rss-cart-service (current value: {{ $value }})'
+      expr: |
+        sum(RSScart_http_request_error_rate:burnrate6h{job="rss-cart-service"}) > (1.00 * (1-0.99500))
+        and
+        sum(RSScart_http_request_error_rate:burnrate3d{job="rss-cart-service"}) > (1.00 * (1-0.99500))
+      for: 3h
+      labels:
+        job: rss-cart
+        severity: WARNING
+
+    - expr: |
+        1 -
+        ( sum(rate(http_server_requests_seconds_count{job="rss-cart-service", url!~"/actuator/.*", status!~"5.."}[1d]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-cart-service", url!~"/actuator/.*"}[1d])) )
+      labels:
+        app: rss-cart
+        job: rss-cart-service
+        window: "1 day"
+      record: RSScart_http_request_error_rate:burnrate1d
+    - expr: |
+        1 -
+        ( sum(rate(http_server_requests_seconds_count{job="rss-cart-service", url!~"/actuator/.*", status!~"5.."}[1h]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-cart-service", url!~"/actuator/.*"}[1h])) )
+      labels:
+        app: rss-cart
+        job: rss-cart-service
+        window: "1 hour"
+      record: RSScart_http_request_error_rate:burnrate1h
+    - expr: |
+        1 -
+        ( sum(rate(http_server_requests_seconds_count{job="rss-cart-service", url!~"/actuator/.*", status!~"5.."}[2h]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-cart-service", url!~"/actuator/.*"}[2h])) )
+      labels:
+        app: rss-cart
+        job: rss-cart-service
+        window: "2 hour"
+      record: RSScart_http_request_error_rate:burnrate2h
+    - expr: |
+        1 -
+        ( sum(rate(http_server_requests_seconds_count{job="rss-cart-service", url!~"/actuator/.*", status!~"5.."}[30m]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-cart-service", url!~"/actuator/.*"}[30m])) )
+      labels:
+        app: rss-cart
+        job: rss-cart-service
+        window: "30 min"
+      record: RSScart_http_request_error_rate:burnrate30m
+    - expr: |
+        1 -
+        ( sum(rate(http_server_requests_seconds_count{job="rss-cart-service", url!~"/actuator/.*", status!~"5.."}[3d]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-cart-service", url!~"/actuator/.*"}[3d])) )
+      labels:
+        app: rss-cart
+        job: rss-cart-service
+        window: "3 day"
+      record: RSScart_http_request_error_rate:burnrate3d
+    - expr: |
+        1 -
+        ( sum(rate(http_server_requests_seconds_count{job="rss-cart-service", url!~"/actuator/.*", status!~"5.."}[5m]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-cart-service", url!~"/actuator/.*"}[5m])) )
+      labels:
+        app: rss-cart
+        job: rss-cart-service
+        window: "5 min"
+      record: RSScart_http_request_error_rate:burnrate5m
+    - expr: |
+        1 -
+        ( sum(rate(http_server_requests_seconds_count{job="rss-cart-service", url!~"/actuator/.*", status!~"5.."}[6h]))
+        /
+        sum(rate(http_server_requests_seconds_count{job="rss-cart-service", url!~"/actuator/.*"}[6h])) )
+      labels:
+        app: rss-cart
+        job: rss-cart-service
+        window: "6 hour"
+      record: RSScart_http_request_error_rate:burnrate6h

@@ -1,0 +1,20 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: rss-cart-service-monitor
+  namespace: rss-cart
+  labels:
+    app: rss-cart
+    release: kube-prometheus-stack
+    team: sre
+spec:
+  selector:
+    matchLabels:
+      app: rss-cart
+  namespaceSelector:
+    matchNames:
+    - rss-cart
+  endpoints:
+  - port: http
+    path: /actuator/prometheus
+    interval: 10s

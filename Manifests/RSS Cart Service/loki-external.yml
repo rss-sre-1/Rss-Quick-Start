@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: loki #same name as service to you are redirecting to (fluentd is using loki)
+  namespace: rss-cart
+spec:
+  type: ExternalName
+  externalName: loki.default.svc.cluster.local
+  #<service-name>.<namespace-name>.svc.cluser.local
+  #This will redirect traffic to another service in a different namespace
+  ports:
+    - port: 3100
+      targetPort: 3100
+      protocol: TCP
