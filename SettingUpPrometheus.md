@@ -152,3 +152,4 @@ Some microservices may implement the servicemonitor in the setup.yaml file.
 There are rules in each microservice's repository for recording and alerting on high error rates and latencies. These rules are based on a 99.5% service level objective (SLO). To customize rules, [here]( https://prometheus.io/docs/prometheus/latest/configuration/recording_rules/
 ) is more information.
 
+ 
