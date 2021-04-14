@@ -1,0 +1,14 @@
+Mon Apr 12 17:00:22 CDT 2021
+Release "kube-prometheus-stack" has been upgraded. Happy Helming!
+NAME: kube-prometheus-stack
+LAST DEPLOYED: Mon Apr 12 17:00:33 2021
+NAMESPACE: default
+STATUS: deployed
+REVISION: 9
+TEST SUITE: None
+NOTES:
+kube-prometheus-stack has been installed. Check its status by running:
+  kubectl --namespace default get pods -l "release=kube-prometheus-stack"
+
+Visit https://github.com/prometheus-operator/kube-prometheus for instructions on how to create & configure Alertmanager and Prometheus instances using the Operator.
+ 
