@@ -4,13 +4,13 @@
 
 * Clone the rss-evaluation-service repository
 * Create a namespace called rss-evaluation
-  * kubectl create namespace rss-evaluation
+  * `kubectl create namespace rss-evaluation`
 * Apply the rss-evaluation manifests (manifests are in a folder called manifests)
   * service, ingress, deployment, loki-external, service-monitor, prometheus-rule, canary, loadtest
 * Create secret
-  * kubectl create -n rss-evaluation secret generic rss-evaluation-credentials --from-literal=url=**REDACTED** --from-literal=username=**REDACTED** --from-literal=password=**REDACTED**
+  * `kubectl create -n rss-evaluation secret generic rss-evaluation-credentials --from-literal=url=$DB_URL --from-literal=username=$DB_USERNAME --from-literal=password=$DB_PASSWORD`
 * Create fluentd configmap
-  * kubectl create configmap -n rss-evaluation rss-evaluation-fluent-conf --from-file fluent.conf
+  * `kubectl create configmap -n rss-evaluation rss-evaluation-fluent-conf --from-file fluent.conf`
 
 #### Implemented Changes
 * Converted the H2 database to Postgres
