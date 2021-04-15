@@ -1,12 +1,7 @@
 #!/bin/bash
 #PIPELINE VARIABLES
-#KUBERNETES
-Context="sre"
-ECR="855430746673.dkr.ecr.us-east-1.amazonaws.com"
 Namespace="rss-evaluation"
 
-
-#DOCKER
 ImageRegistry="855430746673.dkr.ecr.us-east-1.amazonaws.com";
 ImageName="matt-oberlies-sre-p3-rss-evaluation";
 ImageTag="latest";
@@ -30,6 +25,14 @@ TempFile="11111111111";
 #DO NOT CHANGE THESE VARIABLES
 URL="https://github.com/$Org/$Repo/commits/$Branch";
 GrepURL="https://github.com/$Org/$Repo/commit/";
+
+# CHANGE TO PROJECT ROOT DIRECTORY GIVEN BY SEBASTIAN.SH
+if [ "$1" != "" ]; then
+  cd $1;
+fi
+## TODO - add path checking and error msg -
+
+
 
 # CHECKING FOR BASE FILE STORING OLD COMMIT
 rm $TempFile &> /dev/null;
@@ -57,7 +60,7 @@ if [ "$(diff $BaseFile $TempFile)" != "" ]; then
 
 
   touch DF;
-  err="$(aws ecr get-login-password --profile $Context | docker login --username AWS --password-stdin $ECR 2>&1)";
+  err="$(aws ecr get-login-password --profile sre | docker login --username AWS --password-stdin 855430746673.dkr.ecr.us-east-1.amazonaws.com 2>&1)";
   rm DF;
   if [[ "${err:0:5}" == "error" || "${err:0:6}" == "unable" ]]; then
     echo "ERROR: $err";
@@ -65,7 +68,7 @@ if [ "$(diff $BaseFile $TempFile)" != "" ]; then
 
 ####### ADD / MODIFY / REMOVE STAGES #######
 #STARTING PIPELINE
-#  aws ecr get-login-password --profile $Context | docker login --username AWS --password-stdin $ECR;
+#  aws ecr get-login-password --profile sre | docker login --username AWS --password-stdin 855430746673.dkr.ecr.us-east-1.amazonaws.com;
   git pull;
 
 #BUILD STAGE
