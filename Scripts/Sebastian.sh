@@ -1,7 +1,7 @@
 #!/bin/bash
 #For this program to run the pipeline, a MiniPipeline.sh file must be present in the same directory as this file.
 
-Interval="5s";
+Interval="59s";
 
 # CHECKING FOR STOP FILE
 if [ "$(ls | grep stop 2> /dev/null)" == "stop" ]; then
@@ -18,11 +18,11 @@ stop=$(cat stop 2> /dev/null);
 while [ "$stop" == "" ]; do
   echo $(date +"%T") - ;
 
-##ADD PIPELINE SCRIPT LOCATIONS HERE##
-  ./Pipeline.sh;
+## ADD PIPELINE SCRIPT LOCATIONS HERE | FOLLOWED BY PROJECT DIRECTORY PATH ##
+  ./rss-evaluation-service/PipelineScript/Pipeline.sh $PWD/rss-evaluation-service/;
+  ./rss-frontend/MiniPipeline.sh $PWD/rss-frontend/;
 
-
-######################################
+##############################################################################
 
   echo " - ";
   sleep $Interval;
