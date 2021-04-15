@@ -8,19 +8,19 @@ first thing you'll need is the cluster to run it on. refer to the [CapcityPlan.y
 
 ## Creating all the namespaces
 
-run the following commands in the eks cluster
+*run the following commands in the eks cluster
 
-`kubectl create namespace docutest`
-`kubectl create namespace kube-node-lease`
-`kubectl create namespace kube-public`
-`kubectl create namespace kube-system`
-`kubectl create namespace lens-metrics`
-`kubectl create namespace loadtesting`
-`kubectl create namespace postgres`
-`kubectl create namespace rss-account`
-`kubectl create namespace rss-cart`
-`kubectl create namespace rss-evaluation`
-`kubectl create namespace rss-frontend`
-`kubectl create namespace rss-inventory`
+	*`kubectl create namespace docutest`
+	*`kubectl create namespace kube-node-lease`
+	*`kubectl create namespace kube-public`
+	*`kubectl create namespace kube-system`
+	*`kubectl create namespace lens-metrics`
+	*`kubectl create namespace loadtesting`
+	*`kubectl create namespace postgres`
+	*`kubectl create namespace rss-account`
+	*`kubectl create namespace rss-cart`
+	*`kubectl create namespace rss-evaluation`
+	*`kubectl create namespace rss-frontend`
+	*`kubectl create namespace rss-inventory`
 
-this will create all the namespaces we need for the cluster
+*this will create all the namespaces we need for the cluster
