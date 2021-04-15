@@ -1,6 +1,6 @@
 ### Plan
 
-* When Designing the Amazon EKS Cluster you will need the following Items
+* When Designing the Amazon EKS Cluster you will need the following Items.
 	*4 RDS using Postgres Dialect.
 	*7 GP2 EBS totaling 60 gb.
 	*ECR: Elastic Container Registry.
