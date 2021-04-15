@@ -1,6 +1,6 @@
 ## Evaluation Service
 
-#### Implementing Evaluation Service
+### Implementing Evaluation Service
 
 * Clone the rss-evaluation-service repository
 * Create a namespace called rss-evaluation
