@@ -31,7 +31,7 @@ this will create all the namespaces we need for the cluster
 #### Implementing Frontend Service ####
 * Clone the rss-frontend repository
 * Create a namespace called rss-frontend
-  * kubectl create namespace rss-frontend
+  * `kubectl create namespace rss-frontend`
 * Apply the rss-frontend manifests (manifests are in a folder called rss-frontend-manifests)
   * service, ingress, deployment
   
@@ -114,13 +114,13 @@ this will create all the namespaces we need for the cluster
 
 * Clone the rss-evaluation-service repository
 * Create a namespace called rss-evaluation
-  * kubectl create namespace rss-evaluation
+  * `kubectl create namespace rss-evaluation`
 * Apply the rss-evaluation manifests (manifests are in a folder called manifests)
   * service, ingress, deployment, loki-external, service-monitor, prometheus-rule, canary, loadtest
 * Create secret
-  * kubectl create -n rss-evaluation secret generic rss-evaluation-credentials --from-literal=url=$DB_URL --from-literal=username=$DB_USERNAME --from-literal=password=$DB_PASSWORD
+  * `kubectl create -n rss-evaluation secret generic rss-evaluation-credentials --from-literal=url=$DB_URL --from-literal=username=$DB_USERNAME --from-literal=password=$DB_PASSWORD`
 * Create fluentd configmap
-  * kubectl create configmap -n rss-evaluation rss-evaluation-fluent-conf --from-file fluent.conf
+  * `kubectl create configmap -n rss-evaluation rss-evaluation-fluent-conf --from-file fluent.conf`
  
 ### Implementing Cart Service
 
